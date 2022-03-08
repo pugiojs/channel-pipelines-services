@@ -3,36 +3,30 @@ import {
     Global,
 } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
-import { JwtStrategy } from './jwt.strategy';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UserModule } from 'src/user/user.module';
 import { ConfigModule } from '@nestjs/config';
-import { ApiKeyStrategy } from './api-key.strategy';
 import { KeyModule } from 'src/key/key.module';
-import { ClientKeyStrategy } from './client-key.strategy';
+import { ChannelKeyStrategy } from './channel-key.strategy';
 
 @Global()
 @Module({
     imports: [
         ConfigModule,
         PassportModule.register({
-            defaultStrategy: ['jwt', 'api-key'],
+            defaultStrategy: ['channel-key'],
         }),
         UserModule,
         KeyModule,
     ],
     providers: [
-        ApiKeyStrategy,
-        ClientKeyStrategy,
-        JwtStrategy,
+        ChannelKeyStrategy,
         AuthService,
     ],
     exports: [
         PassportModule,
-        JwtStrategy,
-        ApiKeyStrategy,
-        ClientKeyStrategy,
+        ChannelKeyStrategy,
         AuthService,
     ],
     controllers: [AuthController],

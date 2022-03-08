@@ -223,13 +223,14 @@ export class HookService {
             newTask.id,
         );
 
-        await this.clientService.requestClientChannel({
-            clientId,
-            scope: 'pugio.pipelines',
-            requestBody: {
-                lockPass,
-            },
-        });
+        // TODO
+        // await this.clientService.requestClientChannel({
+        //     clientId,
+        //     scope: 'pugio.pipelines',
+        //     requestBody: {
+        //         lockPass,
+        //     },
+        // });
 
         return _.omit(newTask, ['hook']);
     }

@@ -5,32 +5,31 @@ import {
     Injectable,
 } from '@nestjs/common';
 import { KeyService } from 'src/key/key.service';
+import * as _ from 'lodash';
 
 @Injectable()
-export class ClientKeyStrategy extends PassportStrategy(HeaderAPIKeyStrategy, 'client-key') {
+export class ChannelKeyStrategy extends PassportStrategy(HeaderAPIKeyStrategy, 'channel-key') {
     public constructor(
         private readonly keyService: KeyService,
     ) {
         super(
             {
-                header: 'CLIENT-KEY',
+                header: 'CHANNEL-KEY',
                 prefix: '',
+                property: 'channel',
             },
             true,
-            async (encodedClientKey, done) => {
+            async (encodedChannelKey, done) => {
                 try {
-                    const {
-                        user,
-                        client,
-                    } = await this.keyService.validateClientKey(encodedClientKey);
+                    const channel = await this.keyService.validateChannelKey(encodedChannelKey);
 
-                    if (!user) {
+                    if (_.isBoolean(channel)) {
                         return done(null, false);
                     } else {
-                        if (!client) {
+                        if (!channel) {
                             return done(new ForbiddenException());
                         } else {
-                            return done(null, { ...user, client });
+                            return done(null, channel);
                         }
                     }
                 } catch (error) {

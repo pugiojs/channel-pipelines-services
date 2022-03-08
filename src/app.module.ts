@@ -7,7 +7,6 @@ import {
     ConfigModule,
     ConfigService,
 } from '@nestjs/config';
-import { AuthModule } from './auth/auth.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
@@ -16,22 +15,18 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { getMetadataArgsStorage } from 'typeorm';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UtilModule } from './util/util.module';
-import { KeyModule } from './key/key.module';
 import { ClientModule } from './client/client.module';
 import { RedisModule } from '@lenconda/nestjs-redis';
 import { LockerModule } from './locker/locker.module';
 import { TaskModule } from './task/task.module';
 import { HookModule } from './hook/hook.module';
 import { ExecutionModule } from './execution/execution.module';
-import { ClientStatusModule } from './client-status/client-status.module';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { ChannelModule } from './channel/channel.module';
 
 // Application configs
 import appConfig from './config/app.config';
 import dbConfig from './config/db.config';
-import authConfig from './config/auth.config';
 import redisConfig from './config/redis.config';
+import { KeyModule } from './key/key.module';
 
 @Module({
     imports: [
@@ -39,11 +34,10 @@ import redisConfig from './config/redis.config';
             load: [
                 appConfig,
                 dbConfig,
-                authConfig,
                 redisConfig,
             ],
         }),
-        AuthModule,
+        KeyModule,
         UserModule,
         TypeOrmModule.forRootAsync({
             imports: [ConfigModule],
@@ -61,7 +55,6 @@ import redisConfig from './config/redis.config';
             inject: [ConfigService],
         }),
         UtilModule,
-        KeyModule,
         ClientModule,
         RedisModule.forRootAsync({
             imports: [ConfigModule],
@@ -81,18 +74,6 @@ import redisConfig from './config/redis.config';
         TaskModule,
         HookModule,
         ExecutionModule,
-        ClientStatusModule,
-        ...(
-            process.env.NODE_ENV === 'development'
-                ? [
-                    ServeStaticModule.forRoot({
-                        rootPath: path.resolve(__dirname, '../static'),
-                        serveRoot: '/static',
-                    }),
-                ]
-                : []
-        ),
-        ChannelModule,
     ],
     controllers: [AppController],
     providers: [
