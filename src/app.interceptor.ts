@@ -35,7 +35,7 @@ export class AppInterceptor<T> implements NestInterceptor<T, Response> {
     ): Promise<Observable<Response>> {
         const request = context.switchToHttp().getRequest();
 
-        const encryptedContext = request.headers['X-Pugio-Context'];
+        const encryptedContext = request.headers['X-Pugio-Context'.toLowerCase()];
 
         const relation: UserClientDTO = this.utilService.decryptContext(encryptedContext);
 
@@ -45,9 +45,9 @@ export class AppInterceptor<T> implements NestInterceptor<T, Response> {
 
         request['pugio_context'] = relation;
 
-        await this.userService.syncUserInformation(relation.user);
-        await this.clientService.syncClientInformation(relation.client);
-        await this.clientService.syncUserClientRelation(relation.user.id, relation.client.id, relation);
+        this.userService.syncUserInformation(relation.user);
+        this.clientService.syncClientInformation(relation.client);
+        this.clientService.syncUserClientRelation(relation.user.id, relation.client.id, relation);
 
         return next.handle().pipe(
             catchError((e) => {

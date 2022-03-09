@@ -25,12 +25,12 @@ export class UserService {
      * @returns {Promise<UserDTO>}
      */
     public async syncUserInformation(userInformation: Partial<UserDTO>) {
-        if (!userInformation || !userInformation.openId) {
+        if (!userInformation || !userInformation.id) {
             throw new BadRequestException(ERR_HTTP_MISSING_BODY_PROPERTY);
         }
 
         const currentUserDTO = await this.userRepository.findOne({
-            openId: userInformation.openId,
+            id: userInformation.id,
         });
 
         const newPartialCurrentUserDTO = _.omit(

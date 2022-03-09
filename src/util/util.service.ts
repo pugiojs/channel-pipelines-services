@@ -407,16 +407,12 @@ export class UtilService {
         const channelAesKey = this.configService.get('app.channelKey');
 
         try {
-            const decryptedChannelKey = Crypto
+            const decryptedContext = Crypto
                 .AES
                 .decrypt(encryptedContext, channelAesKey)
                 .toString(Crypto.enc.Utf8);
 
-            if (decryptedChannelKey !== channelAesKey) {
-                return false;
-            }
-
-            return JSON.parse(decryptedChannelKey);
+            return JSON.parse(decryptedContext);
         } catch (e) {
             return null;
         }
