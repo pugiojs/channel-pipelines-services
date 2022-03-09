@@ -9,4 +9,6 @@ export default registerAs('app', () => ({
     lockerExpiration: process.env.APP_LOCKER_EXPIRATION
         ? parseInt(process.env.APP_LOCKER_EXPIRATION, 10)
         : 30,
+    channelId: process.env.APP_CHANNEL_ID,
+    channelKey: process.env.APP_CHANNEL_KEY,
 }));

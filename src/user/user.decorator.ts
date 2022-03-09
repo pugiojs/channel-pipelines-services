@@ -4,18 +4,16 @@ import {
 } from '@nestjs/common';
 import { UserDTO } from './dto/user.dto';
 import * as _ from 'lodash';
-import { ClientDTO } from 'src/client/dto/client.dto';
+import { UserClientDTO } from 'src/relations/user-client.dto';
 
 export const CurrentUser = createParamDecorator(
     (data: string, context: ExecutionContext): UserDTO => {
-        const user = context.switchToHttp().getRequest().user;
+        const relation = context.switchToHttp().getRequest()['pugio_context'] as UserClientDTO;
 
-        if (!user) {
+        if (!relation || !relation.user) {
             return null;
         }
 
-        const userData = (data ? user[data] : user) as UserDTO & { client: ClientDTO };
-
-        return _.omit(userData, ['client']);
+        return relation.user;
     },
 );

@@ -5,6 +5,7 @@ import {
     CallHandler,
     HttpException,
     InternalServerErrorException,
+    ForbiddenException,
 } from '@nestjs/common';
 import * as _ from 'lodash';
 import { Observable } from 'rxjs';
@@ -13,6 +14,9 @@ import {
     map,
 } from 'rxjs/operators';
 import { ERR_HTTP_SERVER_ERROR } from './app.constants';
+import { ClientService } from './client/client.service';
+import { UserClientDTO } from './relations/user-client.dto';
+import { UserService } from './user/user.service';
 import { UtilService } from './util/util.service';
 
 export type Response = Record<string, any>;
@@ -21,18 +25,39 @@ export type Response = Record<string, any>;
 export class AppInterceptor<T> implements NestInterceptor<T, Response> {
     public constructor(
         private readonly utilService: UtilService,
+        private readonly clientService: ClientService,
+        private readonly userService: UserService,
     ) {}
 
     public async intercept(
         context: ExecutionContext,
         next: CallHandler,
     ): Promise<Observable<Response>> {
+        const request = context.switchToHttp().getRequest();
+
+        const encryptedContext = request.headers['X-Pugio-Context'];
+
+        const relation: UserClientDTO = this.utilService.decryptContext(encryptedContext);
+
+        if (!relation) {
+            throw new ForbiddenException();
+        }
+
+        request['pugio_context'] = relation;
+
+        await this.userService.syncUserInformation(relation.user);
+        await this.clientService.syncClientInformation(relation.client);
+        await this.clientService.syncUserClientRelation(relation.user.id, relation.client.id, relation);
+
         return next.handle().pipe(
             catchError((e) => {
                 if (e instanceof HttpException) {
                     throw e;
                 } else {
-                    throw new InternalServerErrorException(ERR_HTTP_SERVER_ERROR, e.message || e.toString());
+                    throw new InternalServerErrorException(
+                        ERR_HTTP_SERVER_ERROR,
+                        e.message || e.toString(),
+                    );
                 }
             }),
             map((data) => {

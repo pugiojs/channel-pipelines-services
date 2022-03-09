@@ -2,7 +2,6 @@ import {
     Logger,
     Module,
 } from '@nestjs/common';
-import * as path from 'path';
 import {
     ConfigModule,
     ConfigService,
@@ -26,7 +25,6 @@ import { ExecutionModule } from './execution/execution.module';
 import appConfig from './config/app.config';
 import dbConfig from './config/db.config';
 import redisConfig from './config/redis.config';
-import { KeyModule } from './key/key.module';
 
 @Module({
     imports: [
@@ -37,7 +35,6 @@ import { KeyModule } from './key/key.module';
                 redisConfig,
             ],
         }),
-        KeyModule,
         UserModule,
         TypeOrmModule.forRootAsync({
             imports: [ConfigModule],

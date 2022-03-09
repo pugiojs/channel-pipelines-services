@@ -11,30 +11,24 @@ import {
     TRangeMap,
     WhereOptions,
 } from 'src/app.interfaces';
-import { UserDAO } from 'src/user/dao/user.dao';
 import {
     Between,
     LessThan,
     Like,
     MoreThan,
 } from 'typeorm';
-import { v5 as uuidv5 } from 'uuid';
 import * as jpath from 'jsonpath';
+import * as Crypto from 'crypto-js';
+import { ConfigService } from '@nestjs/config';
 
 type DataType = Array<any> | Object | string | Date;
 type CaseStyleType = 'snake' | 'camel' | 'kebab';
 
 @Injectable()
 export class UtilService {
-    private userDAOKeyMap = {
-        name: 'name',
-        nickname: 'nickname',
-        picture: 'picture',
-        user_id: 'open_id',
-        email: 'email',
-        created_at: 'created_at',
-        updated_at: 'updated_at',
-    };
+    public constructor(
+        private readonly configService: ConfigService,
+    ) {}
 
     public transformCaseStyle = <T extends DataType, R extends T | DataType>(
         data: Partial<T>,
@@ -111,27 +105,12 @@ export class UtilService {
         return this.transformCaseStyle<DTOType, DAOType>(dtoData, 'snake');
     }
 
-    public getUserDAOFromAuth0Response(userInfo: Object) {
-        return Object.keys(this.userDAOKeyMap).reduce((result, currentKey) => {
-            const currentKeyName = this.userDAOKeyMap[currentKey];
-            const currentValue = userInfo[currentKey];
-            if (!_.isNull(currentValue) || !_.isUndefined(currentValue)) {
-                result[currentKeyName] = currentValue;
-            }
-            return result;
-        }, {} as UserDAO);
-    }
-
     public async sleep(timeout = 500) {
         return new Promise((resolve) => {
             setTimeout(() => {
                 resolve(undefined);
             }, timeout);
         });
-    }
-
-    public generateChannelName(clientId: string, scope: string) {
-        return `${clientId}@${scope}`;
     }
 
     public generateExecutionTaskQueueName(clientId: string) {
@@ -300,28 +279,6 @@ export class UtilService {
         };
     }
 
-    public async generateRandomPassword(namespace?: string) {
-        const seed = [
-            Math.random().toString(32).slice(2),
-            Date.now().toString(),
-            ...(
-                _.isString(namespace)
-                    ? [namespace]
-                    : []
-            ),
-        ];
-
-        let passwordContent = seed.join(':');
-
-        if (_.isString(namespace)) {
-            try {
-                passwordContent = uuidv5(passwordContent, namespace);
-            } catch (e) {}
-        }
-
-        return Buffer.from(passwordContent).toString('base64');
-    }
-
     public validateHookScriptMapper(mapperContent: string) {
         if (!mapperContent || !_.isString(mapperContent)) {
             return false;
@@ -440,6 +397,29 @@ export class UtilService {
         }
 
         return null;
+    }
+
+    public decryptContext(encryptedContext: string) {
+        if (!encryptedContext || !_.isString(encryptedContext)) {
+            return null;
+        }
+
+        const channelAesKey = this.configService.get('app.channelKey');
+
+        try {
+            const decryptedChannelKey = Crypto
+                .AES
+                .decrypt(encryptedContext, channelAesKey)
+                .toString(Crypto.enc.Utf8);
+
+            if (decryptedChannelKey !== channelAesKey) {
+                return false;
+            }
+
+            return JSON.parse(decryptedChannelKey);
+        } catch (e) {
+            return null;
+        }
     }
 
     private generateCreatedAtRange(dateRange: Date[], cursorDate: Date) {
