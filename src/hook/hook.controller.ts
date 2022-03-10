@@ -14,6 +14,8 @@ import {
     PermanentlyParseIntPipe,
     TransformDTOPipe,
 } from 'src/app.pipe';
+import { CurrentClient } from 'src/client/client.decorator';
+import { ClientDTO } from 'src/client/dto/client.dto';
 import { HookDTO } from './dto/hook.dto';
 import { HookService } from './hook.service';
 
@@ -79,5 +81,11 @@ export class HookController {
         @Body() content,
     ) {
         return await this.hookService.sendExecutionTask(hookId, content);
+    }
+
+    // TODO remove
+    @Post('/test')
+    public async testChannelApi(@CurrentClient() client: ClientDTO): Promise<any> {
+        return await this.hookService.testChannelApi(client);
     }
 }

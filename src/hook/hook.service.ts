@@ -21,6 +21,7 @@ import * as _ from 'lodash';
 import { PaginationQueryServiceOptions } from 'src/app.interfaces';
 import { ChannelManager } from '@pugio/sdk';
 import { ConfigService } from '@nestjs/config';
+import { ClientDTO } from 'src/client/dto/client.dto';
 
 @Injectable()
 export class HookService {
@@ -234,10 +235,24 @@ export class HookService {
         await this.channelManager.makeChannelRequest({
             clientId,
             data: {
+                action: 'trigger',
                 lockPass,
             },
         });
 
         return _.omit(newTask, ['hook']);
+    }
+
+    // TODO remove
+    public async testChannelApi(client: ClientDTO): Promise<any> {
+        return await this.channelManager.makeChannelRequest({
+            clientId: client.id,
+            data: {
+                action: 'test',
+                data: {
+                    date: new Date().toISOString(),
+                },
+            },
+        });
     }
 }
