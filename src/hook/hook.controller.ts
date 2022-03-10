@@ -82,10 +82,4 @@ export class HookController {
     ) {
         return await this.hookService.sendExecutionTask(hookId, content);
     }
-
-    // TODO remove
-    @Post('/test')
-    public async testChannelApi(@CurrentClient() client: ClientDTO): Promise<any> {
-        return await this.hookService.testChannelApi(client);
-    }
 }

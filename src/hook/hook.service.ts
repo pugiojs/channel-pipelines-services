@@ -242,17 +242,4 @@ export class HookService {
 
         return _.omit(newTask, ['hook']);
     }
-
-    // TODO remove
-    public async testChannelApi(client: ClientDTO): Promise<any> {
-        return await this.channelManager.makeChannelRequest({
-            clientId: client.id,
-            data: {
-                action: 'test',
-                data: {
-                    date: new Date().toISOString(),
-                },
-            },
-        });
-    }
 }
