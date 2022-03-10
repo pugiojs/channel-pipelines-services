@@ -152,12 +152,12 @@ export class HookService {
     }
 
     public async sendExecutionTask(hookId: string, props: Record<string, any> = {}) {
-        const hook = await this.hookRepository
-            .createQueryBuilder('hook')
-            .leftJoinAndSelect('hook.client', 'client')
-            .addSelect('client.publicKey')
-            .where('hook.id = :hookId', { hookId })
-            .getOne();
+        const hook = await this.hookRepository.findOne({
+            where: {
+                id: hookId,
+            },
+            relations: ['client'],
+        });
 
         if (!hook || !hook.client) {
             throw new NotFoundException();

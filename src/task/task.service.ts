@@ -106,13 +106,6 @@ export class TaskService {
             return [];
         }
 
-        const { publicKey: clientPublicKey } = await this.clientRepository.findOne({
-            where: {
-                id: client.id,
-            },
-            select: ['publicKey'],
-        });
-
         const result = [];
 
         for (const task of tasks) {
@@ -138,10 +131,6 @@ export class TaskService {
             let executionData;
 
             try {
-                if (!_.isString(clientPublicKey)) {
-                    throw new Error();
-                }
-
                 executionData = JSON.stringify(executionConfig);
             } catch (e) {
                 status = -3;

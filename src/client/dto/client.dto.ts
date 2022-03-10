@@ -24,36 +24,11 @@ export class ClientDTO {
     })
     public description: string;
 
-    @Column({
-        name: 'device_id',
-        nullable: true,
-        select: false,
-    })
-    public deviceId: string;
-
     @Column({ default: true })
     public verified: boolean;
 
     @Column({ default: '1.0.0' })
     public version: string;
-
-    @Column({
-        type: 'longtext',
-        name: 'public_key',
-        nullable: true,
-        default: null,
-        select: false,
-    })
-    public publicKey: string;
-
-    @Column({
-        type: 'longtext',
-        name: 'private_key',
-        nullable: true,
-        default: null,
-        select: false,
-    })
-    public privateKey: string;
 
     @OneToMany(
         () => UserClientDTO,
