@@ -19,21 +19,29 @@ import { HookDTO } from './dto/hook.dto';
 import * as Handlebars from 'handlebars';
 import * as _ from 'lodash';
 import { PaginationQueryServiceOptions } from 'src/app.interfaces';
+import { ChannelManager } from '@pugio/sdk';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class HookService {
     private redisClient: Redis;
+    private channelManager: ChannelManager;
 
     public constructor(
         private readonly utilService: UtilService,
         private readonly redisService: RedisService,
         private readonly clientService: ClientService,
+        private readonly configService: ConfigService,
         @InjectRepository(TaskDTO)
         private readonly taskRepository: Repository<TaskDTO>,
         @InjectRepository(HookDTO)
         private readonly hookRepository: Repository<HookDTO>,
     ) {
         this.redisClient = this.redisService.getClient();
+        this.channelManager = new ChannelManager({
+            channelId: this.configService.get('app.channelId'),
+            channelKey: this.configService.get('app.channelKey'),
+        });
     }
 
     public async createHook(clientId: string, data: Partial<HookDTO>) {
@@ -223,14 +231,13 @@ export class HookService {
             newTask.id,
         );
 
-        // TODO
-        // await this.clientService.requestClientChannel({
-        //     clientId,
-        //     scope: 'pugio.pipelines',
-        //     requestBody: {
-        //         lockPass,
-        //     },
-        // });
+        await this.channelManager.makeChannelRequest({
+            clientId,
+            channelId: this.configService.get('app.channelId'),
+            data: {
+                lockPass,
+            },
+        });
 
         return _.omit(newTask, ['hook']);
     }
