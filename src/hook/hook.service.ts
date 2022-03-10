@@ -233,7 +233,6 @@ export class HookService {
 
         await this.channelManager.makeChannelRequest({
             clientId,
-            channelId: this.configService.get('app.channelId'),
             data: {
                 lockPass,
             },
