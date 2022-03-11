@@ -1,16 +1,16 @@
 {
-    "name": "@pugiojs/pugio-restful-api",
+    "name": "@pugio/channel-pipelines-services",
     "private": true,
     "version": "0.0.1",
     "description": "Pugio back-end API services",
     "author": "lenconda <i@lenconda.top>",
     "homepage": "https://pugio.lenconda.top",
     "bugs": {
-        "url": "https://github.com/pugiojs/pugio-restful-api/issues"
+        "url": "https://github.com/pugiojs/channel-pipelines-services/issues"
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/pugiojs/pugio-restful-api.git"
+        "url": "git+https://github.com/pugiojs/channel-pipelines-services.git"
     },
     "license": "MIT",
     "scripts": {
@@ -41,6 +41,7 @@
         "@nestjs/serve-static": "^2.2.2",
         "@nestjs/typeorm": "^7.1.5",
         "@nestjs/websockets": "^7.6.18",
+        "@pugio/sdk": "^2.0.3",
         "axios": "^0.24.0",
         "crypto-js": "^4.1.1",
         "handlebars": "^4.7.7",
